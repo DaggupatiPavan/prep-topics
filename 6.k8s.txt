@@ -1,0 +1,170 @@
+Kubernetes is a crucial tool for DevOps engineers, and preparing for interviews requires a solid understanding of **architecture, deployments, networking, storage, security, scaling, and troubleshooting**. Below is a **structured Kubernetes interview preparation guide** covering all **must-know** topics.
+
+---
+
+## **1. Kubernetes Basics**  
+✅ What is **Kubernetes**? Why use it?  
+✅ Difference between **Docker Swarm vs Kubernetes**  
+✅ **Kubernetes Architecture**  
+   - **Master Components**: API Server, Controller Manager, Scheduler, etcd  
+   - **Node Components**: Kubelet, Kube Proxy, Container Runtime  
+✅ **Pod vs Node vs Cluster vs Namespace**  
+
+---
+
+## **2. Kubernetes Objects & YAML Basics**  
+✅ **Understanding Key Resources**  
+   - **Pod**: Smallest deployable unit (`kubectl run nginx --image=nginx`)  
+   - **Deployment**: Manages replica sets & rolling updates  
+   - **Service**: Exposes applications (`ClusterIP`, `NodePort`, `LoadBalancer`, `Ingress`)  
+   - **ConfigMap & Secret**: Externalizing configuration (`kubectl create configmap`)  
+   - **PersistentVolume (PV) & PersistentVolumeClaim (PVC)**  
+
+✅ **Writing a Kubernetes YAML file**  
+   - Basic `pod.yaml`, `deployment.yaml`, `service.yaml`  
+   - Applying (`kubectl apply -f deployment.yaml`)  
+   - Checking logs & status (`kubectl logs -f pod-name`)  
+
+---
+
+## **3. Deployments & Scaling**  
+✅ **Deploying Applications**  
+   - `kubectl create deployment nginx --image=nginx`  
+   - `kubectl get pods -o wide`  
+   - `kubectl describe pod pod-name`  
+
+✅ **Scaling Applications**  
+   - Manual Scaling (`kubectl scale deployment nginx --replicas=3`)  
+   - Auto Scaling (`kubectl autoscale deployment nginx --cpu-percent=50 --min=1 --max=5`)  
+   - Horizontal Pod Autoscaler (HPA)  
+
+✅ **Rolling Updates & Rollbacks**  
+   - `kubectl rollout status deployment nginx`  
+   - `kubectl rollout history deployment nginx`  
+   - `kubectl rollout undo deployment nginx`  
+
+---
+
+## **4. Kubernetes Services & Networking**  
+✅ **Types of Services**  
+   - **ClusterIP** (default, internal)  
+   - **NodePort** (exposes on node IP, fixed port)  
+   - **LoadBalancer** (cloud provider-managed external LB)  
+   - **Ingress** (routes traffic based on hostname/path)  
+
+✅ **Networking Concepts**  
+   - Pod-to-Pod communication (`kubectl exec -it pod -- curl other-pod-ip`)  
+   - Service-to-Service communication (`curl service-name`)  
+   - Network Policies (`kubectl apply -f network-policy.yaml`)  
+
+✅ **Ingress Controller**  
+   - Nginx Ingress Controller (`kubectl apply -f ingress.yaml`)  
+   - TLS with Ingress (`kubectl create secret tls my-tls --cert=cert.pem --key=key.pem`)  
+
+---
+
+## **5. Storage & Persistent Volumes**  
+✅ **Understanding Volumes**  
+   - `emptyDir`, `hostPath`, `PersistentVolume`, `PersistentVolumeClaim`  
+✅ **Dynamic Provisioning with StorageClasses**  
+   - `kubectl apply -f storageclass.yaml`  
+   - `kubectl describe pvc`  
+
+---
+
+## **6. Configurations & Secrets Management**  
+✅ **ConfigMaps & Secrets**  
+   - `kubectl create configmap myconfig --from-literal=key=value`  
+   - `kubectl create secret generic mysecret --from-literal=password=admin123`  
+   - Mounting ConfigMaps & Secrets in Pods  
+
+✅ **RBAC (Role-Based Access Control)**  
+   - Service Accounts (`kubectl create sa my-sa`)  
+   - Roles & RoleBindings (`kubectl create role my-role --verb=get --resource=pods`)  
+
+✅ **Service Mesh (Istio, Linkerd)**  
+   - Managing microservices traffic  
+   - Secure communication with mTLS  
+
+---
+
+## **7. Kubernetes Security**  
+✅ **Best Practices for Security**  
+   - Running **pods as non-root**  
+   - Restricting **container capabilities**  
+   - Using **Network Policies**  
+   - Limiting **resource usage (CPU, memory limits)**  
+   - Scanning images for vulnerabilities (`trivy myimage`)  
+
+✅ **Pod Security Policies & Security Context**  
+   - `kubectl apply -f psp.yaml`  
+   - Enforcing security context in `pod.yaml`  
+
+---
+
+## **8. Kubernetes Logging & Monitoring**  
+✅ **Logging**  
+   - `kubectl logs -f pod-name`  
+   - Fluentd + Elasticsearch + Kibana (EFK Stack)  
+   - Loki + Grafana  
+
+✅ **Monitoring**  
+   - Prometheus + Grafana for metrics (`kubectl apply -f prometheus.yaml`)  
+   - Kubernetes Dashboard (`kubectl proxy`)  
+
+✅ **Debugging Issues**  
+   - `kubectl describe pod pod-name`  
+   - `kubectl get events`  
+   - `kubectl exec -it pod -- /bin/sh`  
+
+---
+
+## **9. Kubernetes in CI/CD**  
+✅ **Using Kubernetes with CI/CD Pipelines**  
+   - Deploying apps via **Jenkins, GitHub Actions, GitLab CI/CD**  
+   - Kubernetes Deployment in a GitHub Actions Workflow  
+   - Helm Charts for managing applications (`helm install myapp ./mychart`)  
+
+✅ **ArgoCD for GitOps Deployment**  
+   - `kubectl create namespace argocd`  
+   - `kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml`  
+   - Managing Kubernetes Apps with ArgoCD  
+
+---
+
+## **10. Kubernetes Troubleshooting & Best Practices**  
+✅ **Common Issues & Fixes**  
+   - Pod stuck in `CrashLoopBackOff` (`kubectl logs pod`)  
+   - `ImagePullBackOff` (`kubectl describe pod`)  
+   - `OOMKilled` (Out of memory, check `kubectl describe pod`)  
+   - Debugging `kubectl get events`  
+
+✅ **Best Practices**  
+   - Optimize Resource Requests & Limits  
+   - Secure Cluster with RBAC & Network Policies  
+   - Use Liveness & Readiness Probes  
+   - Implement Horizontal & Vertical Scaling  
+   - Use Helm for application management  
+
+---
+
+## **11. Hands-on Interview Questions & Tasks**  
+### **Scenario-Based Questions**  
+❓ *How does Kubernetes handle high availability?*  
+❓ *How do you scale applications in Kubernetes?*  
+❓ *What happens when a node fails?*  
+❓ *How do you deploy a multi-container application?*  
+❓ *How do you debug a failing pod?*  
+
+### **Hands-on Practical Tasks**  
+✅ Deploy an **Nginx web app** with Kubernetes  
+✅ Configure a **Kubernetes Service (ClusterIP, NodePort, LoadBalancer)**  
+✅ Set up **Horizontal Pod Autoscaling (HPA)**  
+✅ Deploy an app using **Helm charts**  
+✅ Deploy an app using **ArgoCD (GitOps)**  
+✅ Implement **RBAC policies** for user access  
+✅ Debug a **failing pod with logs & events**  
+
+---
+
+This covers **everything you need to master Kubernetes for interviews** 🚀. Would you like **mock interview questions**, **real-world projects**, or **Kubernetes deployment in AWS EKS** next?
