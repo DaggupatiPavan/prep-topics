@@ -1,0 +1,20 @@
+Jenkins: create Jenkins as cont.
+
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+
+ 
+docker pull jenkins/jenkins:lts
+ 
+docker run -d --name Jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.kube:/root/.kube jenkins/jenkins:lts
+ 
+docker exec -it Jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+
+docker run -d --name Jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.kube:/root/.kube jenkins/jenkins:lts
+
+
+docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+ 

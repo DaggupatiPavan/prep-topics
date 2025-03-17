@@ -1,0 +1,256 @@
+health checks:
+
+probes are used to determine the health checks and testing the readiness of containers running with in pods
+
+
+1. readiness probes - indicate container readiness
+2. liveness probes  - to determine whether a cont still running and responding to requests
+3. startup probes   - used to determine whether application within cont has started successfully. and also used to delay the liveness and readiness probes until the application is ready to handle
+
+                                      
+
+
+
+create pod.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+ name: pod-name
+ labels:
+  apps: swiggy
+spec:
+ containers:
+  - name: my-cont
+    image: nginx   
+    args:
+    - /bin/bash
+    - -c
+    - touch /tmp/health; sleep 100
+    livenessProbe:
+     exec:
+      command:
+      - cat
+      - /tmp/health
+    initialDelaySeconds: 5
+    periodicSeconds: 5
+    timeoutSeconds: 30
+
+
+
+all 3 probes:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app-container
+        image: my-app:latest
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          exec:
+            command:
+              - "curl"
+              - "-f"
+              - "http://localhost:8080/healthz"  
+          initialDelaySeconds: 10
+          periodSeconds: 20
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+              - "curl"
+              - "-f"
+              - "http://localhost:8080/readiness" 
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 3
+        startupProbe:
+          exec:
+            command:
+              - "curl"
+              - "-f"
+              - "http://localhost:8080/start"  
+          initialDelaySeconds: 15
+          periodSeconds: 30
+          failureThreshold: 5
+
+
+
+
+jobs:
+
+Kubernetes jobs:
+
+it is a resource that is used to achieve a particular work like backup script and , once the work is completed the pod will be deleted
+
+uses:
+
+db backup, running batch processes, running the tasks on scheduled interval, log rotation
+
+
+
+features:
+1. one-time execution
+2. parallelism - want to run multiple pods
+3.scheduling
+4.restart policy - if fails restart
+
+
+jobs.yml
+
+apiVersion: batch/v1
+kind: Job
+metadata: 
+ name: my-job
+spec:
+ template: 
+  metadata:
+   name: testjob
+  spec: 
+   containers:
+    - name : my-cont
+      image: nginx
+      command: ["/bin/bash", "-c", "sudo apt update -y; sleep 30;"]
+   restartPolicy: Never/Always
+
+
+parallelism:
+
+
+apiVersion: batch/v1
+kind: Job
+metadata: 
+ name: my-job
+spec:
+ paralellelism: 3
+ activeDeadlineSeconds: 10 
+ template: 
+  metadata:
+   name: testjob
+  spec: 
+   containers:
+    - name : my-cont
+      image: nginx
+      command: ["/bin/bash", "-c", "sudo apt update -y; sleep 30;"]
+   restartPolicy: Never/Always
+
+
+scheduled job:
+
+
+apiVersion: batch/v1
+kind: Job
+metadata: 
+ name: my-job
+spec:
+ schedule: "*****" 
+ template: 
+  metadata:
+   name: testjob
+  spec: 
+   containers:
+    - name : my-cont
+      image: nginx
+      command: ["/bin/bash", "-c", "sudo apt update -y; sleep 30;"]
+   restartPolicy: Never/Always
+
+
+
+
+ingress:
+  
+
+first we need to install the ingress controller
+
+kubectl get ing
+
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+ name: k8s-ingress
+annotations:
+ 
+
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+      http:
+        paths:
+        - path: /app1(/|$)(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: my-service
+              port:
+                number: 8080
+        - path: /app2(/|$)(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: my-service2
+              port:
+                number: 8081
+        - path: /(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: my-service2
+              port:
+                number: 8081
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+
+
+
+

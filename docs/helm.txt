@@ -1,0 +1,125 @@
+helm:
+
+setup kops:
+
+
+
+components in help:
+
+1. charts
+2. templates
+3. values
+4. repositories
+
+
+tools:
+ 
+
+installing helm goto helm official page copy commands 
+
+helm version
+
+for creating a helm chart:
+
+----  helm create name
+
+open values.yml to give values for the required fields
+
+and then after updating install helm ----- helm install name .
+
+to get helm releases --- helm list or helm ls
+
+to upgradenthe changes -- helm upgrade name .
+
+to rollback--- helm rollback name 1
+
+
+
+general commands:
+
+helm uninstall name .
+
+helm install name --debug --dry-run .
+
+helm history name .
+
+helm template .
+
+helm get manifest name 
+
+helm get values name 
+
+helm lint chart_directory
+
+
+adding and updating helm repo:
+
+helm repo add repo_name repo_url
+
+to update repo :
+
+helm repo update
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+GITOPS:
+
+
+
+tools :
+
+argo cd -- to execute manifest files in the cluster ( it is a 3rd party tool )
+
+if GitHub state and cluster state varies ( actual and desired state varies argo cd will go to out of sync )
+
+flux
+
+
+creating service account:
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+ name: admin-user
+ namespace: k8s-dashboard
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+ name: admin-user
+roleRef:
+ apiGroup: rbac.authorization.k8s.io/v1
+ Kind: ClusterRole
+ name: cluster-admin
+subject:
+ -kind: ServiceAcount
+  name: admin-user
+  namespace: k8s-dashboard
+
+
+
+
+  
+
+
+kubectl port-forward -n k8s-dashboard svc/name 8081:443 --adress=0.0.0.0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

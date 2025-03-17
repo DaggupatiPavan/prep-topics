@@ -1,0 +1,209 @@
+config maps:( non confidential data)
+
+to store the all the configuration data and variables:
+
+
+creating it via imperative:
+
+4 ways:
+
+1. --from-literal
+2. --from-file
+3. --from-env-file
+4. --from-file(folder)
+
+1. kubectl create cm myConfig --from-literal=Cloud=AWS --from-literal=Course=Kubernetes
+
+kubectl get cm
+
+kubectl describe cm myConfig
+
+2. create a file GIVE SOME VALUES IN IT - name myfile
+
+kubectl create cm myConfig-2 --from-file=myfile
+
+3. --from-env-file : create .env file and give all values in file and create config
+
+kubectl create cm myconfig-3 --from-env-file=satya.env
+
+4. create folder and create multiple files and in files write values
+
+kubectl create cm myconfig-4 --from-env-folder=satya
+
+
+declarative :
+
+
+configmap.yml
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: myappconfig
+data:
+ DATABASE_NAME: MYSQL
+ PORT: "3306"
+ ENV:DEV
+ TYPE:CONFIG
+
+
+kubectl create -f configmap.yml
+
+create a deployment.yml
+
+attaching single value from config map
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: deployment-name
+spec:
+ replicas: count
+ selector:
+  matchlabels:
+   apps: swiggy
+ template:
+  metadata:
+   labels: 
+    apps: swiggy
+   spec:
+     containers:
+      - name: cont-name
+        image: image-name
+        env:
+         - name: env-name
+           valueFrom:
+             configMapKeyRef:
+               name: myappconfig
+               key: PORT
+              
+
+incase want to attach multiple config values from diff config maps:
+
+        env:
+         - name: db-name
+           valueFrom:
+             configMapKeyRef:
+               name: myconfig-1
+               key: DB
+
+
+IF U WANT TO CHECK THE ATTACHED VALUES IN THE POD 
+
+kubectl exec -itd pod-name -- bash
+
+
+attaching all values in the config map:
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: deployment-name
+spec:
+ replicas: count
+ selector:
+  matchlabels:
+   apps: swiggy
+ template:
+  metadata:
+   labels: 
+    apps: swiggy
+   spec:
+     containers:
+      - name: cont-name
+        image: image-name
+        envFrom:
+           - configMapRef:
+                name: my-config
+
+imagePullPolicy: Always
+
+
+
+
+
+
+
+
+
+secrets:
+
+
+kubelet create secret docker-registry docker-cred --docker-server=https://index.io/v1/ --docker-username=satyavalluri05 --docker-password=******* 
+
+
+kubectl get secret:
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: deployment-name
+spec:
+ replicas: count
+ selector:
+  matchlabels:
+   apps: swiggy
+ template:
+  metadata:
+   labels: 
+    apps: swiggy
+   spec:
+     containers:
+      - name: cont-name
+        image: image-name
+        imagePullSecret:
+         - name :docker-cred
+        envFrom:
+           - configMapRef:
+                name: my-config
+
+
+
+
+kubectl create secret generic my-secret --from-literal=key=value
+
+
+
+
+health checks 
+
+storage classes
+
+security context 
+
+init containers , sidecar containers
+
+
+
+
+
+
+
+
+
+
+
+
+
+               
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+

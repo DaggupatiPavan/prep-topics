@@ -1,0 +1,185 @@
+volumes:
+
+
+empty dir:
+
+this is used to share the data b/w the containers inside a pod
+
+so , the data persists until pod is alive
+
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: mydp
+ namespace:
+spec:
+ selector:
+  matchlabels:
+   apps: Zomato
+ template:
+  metadata:
+   labels:
+    apps: Zomato
+  spec:
+   containers:
+     - name: mycont1
+       image: im-name
+       command: ["/bin/bash", "-c", while true; do echo message; sleep 5; done"]
+       volumeMounts:
+        - name : my-volume
+          mountPath: "/etc/vol"
+
+     - name: mycont2
+       image: im-name2
+       command: ["/bin/bash", "-c", while true; do echo message; sleep 5; done"]
+       volumeMounts:
+        - name : my-volume
+          mountPath: "/etc/vol"
+   volumes:
+    - name: devops
+      emptyDir: {}
+
+
+2.hostpath:
+
+
+this replicates the data of volume on host machine
+
+so , the data persists until cluster alive
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: mydp
+ namespace:
+spec:
+ selector:
+  matchlabels:
+   apps: Zomato
+ template:
+  metadata:
+   labels:
+    apps: Zomato
+  spec:
+   containers:
+     - name: mycont1
+       image: im-name
+       command: ["/bin/bash", "-c", while true; do echo message; sleep 5; done"]
+       volumeMounts:
+        - name : my-volume
+          mountPath: "/etc/vol"
+
+     - name: mycont2
+       image: im-name2
+       command: ["/bin/bash", "-c", while true; do echo message; sleep 5; done"]
+       volumeMounts:
+        - name : my-volume
+          mountPath: "/etc/vol"
+   volumes:
+    - name: devops
+      hostpath: 
+        path: "/opt/myvolume"
+
+
+
+
+pv:
+
+it will be created on cloud:
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+ name: my-pv
+spec:
+ capacity:
+   storage: 5Gi
+ accessModes:
+  -ReadWriteOnce
+ persistentVolumeReclaimPolicy: Recycle
+ awsElasticBlockStore:
+  volumeID: GIVEid
+  fsType: ext4
+
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: /tmp/data  
+  storageClassName: manual
+
+create 2 pv
+
+
+now create PVC
+
+PVC.YML
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+     storage: 4Gi
+
+
+storage classes:
+
+we can create pvc and request storage class to allocate the storage even without creating pv , then storage class will provide required storage.
+
+storage classes:
+
+   this will help to automatically create pv based on the request from pvc
+
+-- storage class must be backed by a sc which take care of volume configuration
+
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StoragClass
+meatadata:
+ name: my-sc
+provisioner: Kubernetes.io/     give the provisioner eg. which type cloud provider
+parameters:
+ type: gp2
+ fsType: ext4
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

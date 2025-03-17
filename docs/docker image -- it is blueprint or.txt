@@ -1,0 +1,84 @@
+docker image -- it is blueprint or template for creating containers , its kind of a pre-packaged read-only snapshot of software
+
+docker container -- it is a running instance of docker image , created from image by using docker run command
+
+how do we create docker file , what are some best practices:
+
+DF is txt file contains some series of instructions , by specifying base image , setting dir , copyin g files and installing dependencies
+
+best practices:
+
+1. use the official base image instead of :latest tag , use a version tagged image to avoid unexpected changes
+
+2. minimize layers ( combine commands (pkg installation) to reduce image size)
+
+3. use .dockerignore exclude files that are not needed in the container)
+
+4. run as non root user( for better security) inside a container
+
+5. use multi-stage builds
+
+6. cleanup after installation
+
+7. document exposed ports and volumes
+
+alpine prioritizes being extremely lightwgt and small in size often at the cost of compatibility with certain software. while slime aims to strike b/w image size and feature availability
+
+
+sample docker file for node js application:
+
+FROM node:16-alpine
+WOKRDIR /usr/src/app
+COPY package*.json ./
+RUN npm install --production
+COPY . .
+CMD ["node", "server.js"]
+
+EAR :
+
+FROM jboss/wildfly:26.1.1.Final
+RUN rm -rf /opt/jboss/wildfly/standalone/deployments/*
+COPY . /opt/jboss/wildfly/standalone/deployments/
+
+war:
+
+FROM tomcat:9.0-jdk11-openjdk-slim
+RUN rm -f /usr/local/tomcat/webapps/*
+COPY target .
+
+multistage docker file to reduce the size of the image:
+
+docker file:
+
+FROM maven:3.8.6-openjdk-17
+
+WORKDIR ----
+
+COPY . .
+
+
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt /app/
+RUN pip install -r requirements.txt
+COPY . /app/
+CMD ["python", "app.py"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

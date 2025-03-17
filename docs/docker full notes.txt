@@ -1,0 +1,423 @@
+docker full notes:
+
+docker components:
+
+docker client
+docker registry
+host - ec2
+
+
+to install docker there are no dependencies - yum install docker -y && systemctl start docker
+
+docker --version
+service docker start
+docker info
+docker images
+docker search image image-name
+docker pull image-name
+
+to create container using image :
+
+docker run -itd --name cont-name -p 1234:8080 image
+
+to start the container:
+docker start container-name/id
+
+to see all containers:
+
+docker ps -a
+
+to see cont with filter:
+
+docker ps -q -f "state=exited"
+
+docker stop cont.name
+docker stop $(docker ps -a -q) -- all cont
+docker rm $(docker ps -a -q) -- delete all stopped
+docker rmi $(docker ps -a)
+
+
+
+docker volumes :
+
+docker volume create volume-name
+docker volume ls - to see volumes
+docker volume inspect volume-name
+docker volume rm volume-name
+docker volume prune -- to delete docker unused containers
+
+to mount the created volume:
+
+1.docker run -itd --name cont1 --mount src=swiggy,destination=/myapp ubuntu
+
+to go inside container :
+docker exec -it cont bash
+
+volume will be created in path : /var/lib/docker/volumes/swiggy/_data
+
+
+host to cont.:
+
+2.docker run -itd --name cont1 -v "$(pwd)":/appcode image
+
+to create readonly :
+
+3.docker run -itd --name cont2 -v uber:/app:ro image
+
+share same volume of 1 cont to another:
+
+4.docker run -itd --name cont2 --privilaged=true --volumes-from=Mustafa ubantu
+
+-----------------------------yes
+
+DOCKER NETWORK:
+
+it allows you to communicate with 1 cont to another and with outside cont
+
+1. bridge network
+2. host network
+3.overlay network
+
+
+bridge : default network
+
+docker network create app-network
+
+docker run --name cont1 --network net-name -d image
+
+basic commands:
+
+docker network ls
+
+to connect network to a container - docker network connect network-name container-name
+
+docker network rm network-name
+
+docker network prune
+
+
+
+
+
+
+
+
+
+
+
+
+docker registry:
+
+
+
+
+
+build the docker file:
+
+docker build -t image-name .
+
+tag the image :
+
+docker tag image-name satyavalluri/dockerrepo:v1 
+
+docker login 
+
+docker push satyavalluri/dockerrepo:v1
+
+pushing the image to ECR:
+
+MODIFY iam rolde instance --->actions ---> security ---> modify IAM role
+
+create new IAM role --> EC2 ---> GIVE ADMIN ACCESS  ---> NOW GIVE ROLE NAME ---> NOW ATTACH ROLE 
+
+go to ECR AND CREATE REPO ---> NOW OPEN REPO AND SEE VIEW PUSH COMMANDS
+
+
+
+
+
+docker compose:
+
+see the docker compose setup in blog
+
+to execute compose file -- docker-compose up -d
+
+to build - docker-compose build
+
+to remove - docker-compose down
+
+to stop - docker-compose stop
+
+docker compose config
+
+to show images of file -- docker-compose images
+
+docker-compose logs
+
+docker-compose pause
+
+docker-compose unpause
+
+docker-compose ps
+
+
+
+
+basic compose file :
+
+---
+version: "3"
+services:
+ currypack:
+    container_name: curry
+    build: dockerfile_path
+    ports:
+     - "hostport":"containerport"
+
+ currypack1:
+    container_name: curry
+    build: dockerfile_path
+    ports:
+     - "hostport":"containerport"
+
+ currypack2:
+    container_name: curry
+    build: dockerfile_path
+    ports:
+     - "hostport":"containerport"
+
+practice :
+
+git clone repo url
+
+cd compose/Paytm
+
+compose file:
+
+---
+
+version: "3"
+services:
+  movie:
+   container_name: movie-container
+   build: ./movie-tickets
+   ports:
+    -"8081":"80"
+   
+  bus:
+   container_name: bus-container
+   build: ./bus-tickets
+   ports:
+    -"8082":"80"
+
+  train:
+   container_name: train-container
+   build: ./train-tickets
+   ports:
+    -"8083":"80"
+
+
+docker-compose build
+
+docker-compose up -d
+
+docker-compose ps
+
+
+volumes in compose:
+
+---
+
+version: "3"
+services:
+  movie:
+   container_name: movie-container
+   build: ./movie-tickets
+   ports:
+    -"8081":"80"
+   volumes:
+    -movie_volume:/user/share/nginx/html:ro
+
+same as is
+
+volumes:
+ movie_volume
+
+
+
+
+networks in compose:
+
+---
+
+version: "3"
+services:
+  movie:
+   container_name: movie-container
+   build: ./movie-tickets
+   ports:
+    -"8081":"80"
+   volumes:
+    -movie_volume:/user/share/nginx/html:ro
+   networks:
+    - movie_network
+   environment:
+    - DB_endpoint=url
+    - DB_USER=root
+      
+
+volumes:
+ movie_volume
+
+networks:
+ movie_network:
+    driver: bridge
+
+docker compose for scaling:
+
+it is important to not to specify container name for scaling:
+
+---
+version: "3"
+services:
+  movie:
+   build: ./train
+   deploy:
+    replicas: 2
+   ports:
+     - "80"
+
+
+to scale manually:
+
+docker-compose up --scale movie=4 -d
+
+
+docker swarm:
+
+
+create instances and launch docker
+
+--docker swarm init
+
+it gives command to join worker nodes or if required:
+
+docker swarm join-token worker
+docker swarm join-token manager
+
+to leave: docker swarm leave
+
+doker node rm node-id
+
+
+
+
+verify the cluster:
+
+docker node ls
+
+create a service :
+
+docker service create --name satya --replicas 3 -p 8081:80 image-name
+
+docker service ls
+
+docker service scale satya=6
+
+rolling service version:
+
+sudo docker service update --image image-name service-name
+
+docker service rollback satya
+
+to delete:
+
+docker service rm satya
+
+docker stack:
+
+
+
+write compose file 
+
+then run - docker stack deploy Mustafa --compose-file=compose.yml
+
+docker stack ls
+
+scaling:
+
+docker services scale service_name=5
+
+docker commit container-name image-name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

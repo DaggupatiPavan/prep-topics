@@ -1,0 +1,120 @@
+sample deployment yaml with multi-cont
+
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+  namespace: evaluation
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+     app: zomato
+  template:
+    metadata:
+      labels:
+     app: zomato
+    spec:
+      volumes:
+        - name: mypvc-volume
+          persistentVolumeClaim:
+            claimName: my-pvc
+        - name: config-volume
+          configMap:
+            name: myconfigmap-volume
+        - name: secret-volume
+          secret:
+            secretName: mysecret-volume
+      imagePullSecrets:
+        - name: my-registry-cred
+      containers:
+        - name: my-zomato1
+          image: nginx
+          volumeMounts:
+          name: config-volume
+          mountPath: "/etc/config"
+          name: secret-volume
+          mountPath: "/etc/secret"
+          name: mypvc-volume
+          mountPath: "/etc/pvc"
+
+
+        - name: my-zomato2
+          image: sandbox
+          command: ["/bin/bash", "-c", "while true; do echo running; sleep 5 done" ]
+          volumeMounts:
+          name: config-volume
+          mountPath: "/etc/config"
+          name: secret-volume
+          mountPath: "/etc/secret"
+          name: mypvc-volume
+          mountPath: "/etc/pvc"
+ 
+      resources:
+        requests:
+          memory: "200Mi"
+          cpu: "200m"
+        limits:
+          memory: "500i"
+          cpu: "600m"
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+  namespace: evaluation
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: zomato
+  template:
+    metadata:
+      labels:
+        app: zomato
+    spec:
+      volumes:
+        - name: mypvc-volume
+          persistentVolumeClaim:
+            claimName: my-pvc
+        - name: config-volume
+          configMap:
+            name: myconfigmap-volume
+        - name: secret-volume
+          secret:
+            secretName: mysecret-volume
+      imagePullSecrets:
+        - name: my-registry-cred
+      containers:
+        - name: my-zomato1
+          image: nginx
+          volumeMounts:
+            - name: config-volume
+              mountPath: "/etc/config"
+            - name: secret-volume
+              mountPath: "/etc/secret"
+            - name: mypvc-volume
+              mountPath: "/etc/pvc"
+        - name: my-zomato2
+          image: sandbox
+          command: ["/bin/bash", "-c", "while true; do echo running; sleep 5; done"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: "/etc/config"
+            - name: secret-volume
+              mountPath: "/etc/secret"
+            - name: mypvc-volume
+              mountPath: "/etc/pvc"
+      resources:
+        requests:
+          memory: "200Mi"
+          cpu: "200m"
+        limits:
+          memory: "500Mi"  
+          cpu: "600m"
+

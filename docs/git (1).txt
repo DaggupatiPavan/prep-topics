@@ -1,0 +1,122 @@
+class 1:
+
+git install :        yum install git -y
+
+create respective file to initiate git:
+
+mkdir .......
+
+initiate git : git init ( after initiating git u could see file with .git )
+
+
+to know git installed or not : 
+
+1.git --version
+2.git -v
+3.rpm -qa git
+
+to see the status of files : git status
+
+to add the file to be tracked in git : git add filename or file1 file2 file3 or *
+
+to commit the git file : git commit -m "message" filename or .
+
+to know the history of all commits : git log ( git log -n 2 : last 2 commits)
+
+to know the details of commit : git show commitID
+
+to change the user name and email : git conig user.name "name" , git config user.email "mail"
+
+
+
+to untrak all files:
+
+git rm --chached *
+
+
+class 2 :
+
+to untrack the files in staging area : git rm -cached filename
+
+
+to get only commitID and cmitMSG : git log --oneline
+
+to get full commitID :     git log --pretty=oneline
+
+to get the full history of commits : git reflog ( it is also used to see the deleted commits as well )
+  
+
+Git ignore concept :
+
+we need to create one file -- vi .gitignore
+
+in content give the file name needs to be hidden to track
+
+
+
+
+git reset :
+
+to delete the commit and commit data 
+
+to delete the commit : git reset --soft HEAD~1
+
+to delete the commit and that data : git reset --hard HEAD~1 ( IT WILL DELETE THE DATA IN FILE AS WELL)
+
+TO GET the deleted commit back : 
+
+u have to know the commit id -- get it by -- git reflog
+
+to get commit back : git cherry-pick commitID
+
+to change the commit message : git commit --amend -m "new message"
+to change author and mail : git commit --amend --author "name<email.com>"
+
+to commit the new file to old commit : git commit --amend --no-edit ( this command will add nnew files (all files ) in staging area to last commit)
+
+
+
+class 3 ( git branches ): 
+
+
+to show branches in git : git branch ( it will show branches once u make any commits)
+to create new branch : git branche name
+to switch branches : git checkout name
+to merge the branch you have to be in the main branch : git merge branch-name
+to create a branch and be in that created branch : git checkout -b branch-name
+to delete the branch ( you have to be in the other branch ) : git checkout -d branch-name
+
+to get the deleted branches back -- will be in git hub
+
+to delete the branch ( forcefully even if it is not merged ) : git checkout -D branch-name
+
+to rename the branch: git branch -m old-name new-name
+
+
+to get the specific commit from one branch to other branch :
+
+via cherry pic it is possible - git cherry-pick commitID
+
+
+WE CAN'T DELETE specific commit in git but we can revert ---- 
+
+
+revert : it will delete the spcfic cmt but it will create another commit with message as "commit got deleted" :  git revert commitID
+
+to know all commits in all branches : git log --graph
+
+to get deleted branch id : git branch-name deleted-branch-id
+
+restore: to restore the deleted file : git restore file-name
+
+
+
+
+ 
+
+                                    
+
+
+
+
+

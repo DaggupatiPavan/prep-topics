@@ -1,0 +1,1059 @@
+Kubernetes:
+
+architecture:
+
+1. master (control plane) ---> API SERVER, SCHEDULER , COTROLLER , ETCD( DB TO CLUSTER).
+2. worker nodes ---> KUBELET ( it will pass info to scheduler via api server) , KUBE PROXY ( network config maintain) 
+
+
+in docker master node -- container will be created 
+
+in kubernetes --- pods will not be created in master node 
+
+cluster setup:
+
+
+take t2 medium... ----> ubantu ---> kp ----> docker sec grp ----> ebs volume 20gb min. ----> launch instance.
+
+- apt update -y 
+
+- apt install docker.io -y
+
+web search minicube install in ubantu ---> binary download.
+
+install kubectl on Linux 
+
+give x permissions---- chmod +x kubectl
+
+mv kubectl /var/local/bin
+
+to start mini cube : minikube start --driver=docker --force
+
+
+
+
+
+
+
+
+
+
+
+
+to  create pod :
+
+
+
+imperative way :
+
+kubectl run pod-name --image=image-name
+
+to see pod: kubectl get pods or pod or po
+
+kubectl describe pod pod-name
+
+kubectl delete pod pod-name ( give multiple if required) 
+
+kubectl delete pod --all ( to delete all)
+
+
+declarive way:
+
+create yml file :
+
+
+file.yml
+
+---
+apiVersion: "v1"
+kind: Pod
+metadata:
+   name: mypod
+   labels:
+      env: dev
+      app: swiggy
+      client: tcs
+spec:
+   containers:
+     -name: con-1
+      image: imagename
+      ports:
+        -containerPort: 80
+
+to create pod from yml file 
+
+command:  kubectl create -f file.yml
+
+to see the data of pod : kubectl get pod -o wide or json or yaml
+
+to go inside pod:
+
+kubectl exec -it pod-name -- bash
+
+to show pods based on labels :
+
+kubectl get po --show-label
+
+to assign label to pod 
+
+kubectl lebel po pod-name app=Zomato       or env=dev
+
+to search pods based on label -- kubectl get po -l app=swiggy        or env=dev
+
+to assign label to node:
+
+kubectl label node node-name node-id= give name
+
+set based:
+
+kubectl get po -l 'app in ( swiggy , Zomato)'
+
+
+kops:
+
+multi node cluster:
+
+to create s3:
+
+aws s3 mb s3://name
+
+to attach bucket to cluster 
+
+export KOPS_STATE_STORE=s3://name
+
+TO CREATE cluster :
+
+kops create cluster --name Mustafa.k8s.local --zones us-east-1a,us-east-1b --master-size t2.medium --master-count 1 --master-volume-size-30 --node-count 2 --node-volume-size 20
+
+eksctl create cluster --name Mustafa --zones us-east-1a,us-east-1b --master-size t2.medium --master-count 1 --master-volume-size-30 --node-count 2 --node-volume-size 20
+
+cluster setup:
+
+
+eksctl create cluster \
+  --name my-cluster \
+  --region us-east-1 \
+  --version 1.27 \
+  --nodegroup-name worker-nodes \
+  --nodes 3 \
+  --nodes-min 2 \
+  --nodes-max 5 \
+  --node-type t3.medium \
+  --node-volume-size 20 \
+  --managed
+
+
+kubectl get cluster --region reg name
+
+kubectl get cluster info 
+
+configure kubectl to aws cluster: aws eks --region us-east-1 update-kubeconfig --name my-cluster
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 3  # Creates 3 pods
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-container
+        image: nginx
+        ports:
+        - containerPort: 80
+
+
+to expose a pod to access we use services:
+
+COMPONENTS:
+
+CLUSTER-IP -- INTERNAL OUTPUT ---(DB ACCESS)
+
+NODE PORT -- 
+
+LOAD BALANCER
+
+
+replication:
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-name
+  labels:
+    env:
+    app:
+spec:
+  containers:
+- name: 
+  image:
+  ports:
+   -containerport: 80
+
+
+
+kubectl create -f filename
+
+service.yml
+
+---
+apiVersion: v1
+kind: service
+metadata:
+   name: service-name
+spec:
+   type: NodePort
+   selector:
+      app: swiggy
+   ports:
+      port: 80
+      containerPort: 80
+      nodePort: 32001
+
+kubectl apply or create  service.yml
+
+kubectl get svc
+
+replication:
+
+1.replication controller:
+
+if we create replication controller pods will be automatically created
+
+
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: replication-name
+  labels:
+  
+spec:
+  replicas: 2
+  selector:
+   app: swiggy
+  template:
+   metadata:
+    labels:
+      app: swiggy
+  spec:
+   containers:
+     -name: cont-name
+      image : image-name
+      ports:
+       - containerPort: 80
+       
+  
+
+
+
+to know api version : kubectl api-resources
+
+service.yml 
+
+---
+apiVersion: v1
+kind: service
+metadata:
+   name: rc-service-name
+spec:
+   type: NodePort
+   selector:
+     app: swiggy
+   ports:
+     port: 80
+     containerPort: 80
+     nodePort: 32011
+
+scaling dynamically: kubectl scale rc myrc --replicas 5
+
+rc commands:
+ 
+kubectl describe rc myrc
+
+kubectl  delete rc rc-name
+
+command to delete rc without deleting pods: kubectl delete rc rc-name --cascade=orphan
+
+replica set:
+
+---
+apiVersion: apps/v1
+kind: Replicaset
+metadata:
+  name: replica-name
+  
+spec:
+  replicas: 2
+  selector:
+   matchlabels:
+      app: swiggy
+  template:
+   metadata:
+    labels:
+      app: swiggy
+  spec:
+   containers:
+     -name: cont-name
+      image : image-name
+      ports:
+       - containerPort: 80
+
+kubectl get rs
+
+kubectl scale rs myrs --replicas 5
+
+kubectl delete rs rs-name --cascade=orphan
+
+RC
+RS   (AUTO SCALING - NO , DOWNTIME - YES , ROLLBACK - YES)
+
+
+DEPLOYMENT -- ULTIMATE object for deployment:
+
+deployment.yml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: Deployment-name  
+spec:
+  replicas: 2
+  selector:
+   matchlabels:
+      app: swiggy
+  template:
+   metadata:
+    labels:
+      app: swiggy
+
+   spec:
+    containers:
+     -name: cont-name
+      image : image-name
+      ports:
+       - containerPort: 80
+
+kubectl create -f deployment.yml
+
+service.yml 
+
+---
+apiVersion: v1
+kind: service
+metadata:
+   name: rc-service-name
+spec:
+   containers:
+      type: NodePort
+      selector:
+        app: swiggy
+      ports:
+       port: 80
+       containerPort: 80
+       nodePort: 32011
+
+kubectl apply -f svc.yml
+
+
+
+deployment.yml:
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: deployment-name
+spec:
+ replicas: count
+ selector:
+  matchlabels:
+   apps: swiggy
+ template:
+  metadata:
+   labels: 
+    apps: swiggy
+   spec:
+     containers:
+      - name: cont-name
+        image: image-name
+        ports:
+         - conatinerPort: 80
+
+to set the image of of deployment container:
+
+ kubectl set deployment/deployment-name cont-name=image-name
+ 
+ kubectl set image deployment deployment-name cont-name=image-name
+ 
+
+ or else we can update in the deployment.yml file 
+
+to check the rollout status:
+
+kubectl rollout status deployment/deployment-name
+
+to check rollout history:
+
+kubectl rollout history deployment/deployment-name
+
+rollback :
+
+kubectl rollout undo deployment/deployment-name
+
+to rollback specific version:
+
+kubectl rollout undo deployment/deployment-name --to-revision=number
+
+
+
+
+
+auto scaling:
+
+HPA - horizontal pod auto scaler        VPA - VERTICAL pod auto scale
+
+pods will be increased                    pod size will be increased
+
+
+
+install metric server
+
+hpa yml 
+
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+ name: myhpa
+spec:
+ scaleTargetref:
+   apiVersion: apps/v1
+   kind: Deployment
+   name: mydeployment
+ minReplicas: 2
+ maxReplicas: 5
+ metrics:
+    type: Resource
+    Resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization : 50
+
+
+kubectl create -f hpa.yml
+    
+kubectl get hpa
+
+to apply stress:
+
+kubectl exec -it pod-name -- bash
+
+install stress
+
+stress --cpu 2 --timeout 300
+
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodScaler
+metadata:
+ name: MYhpa
+spec:
+ scaleTargetRef:
+    apiVersion: apps/v1
+    kind:Deployment
+    name:MYdeployment
+ minReplicas: 2
+ maxReplicas: 6
+ metrics:
+    type: Resource
+    Resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization : 50
+
+
+every worker node shold have spl. pod :
+
+to create a pod in worker node at the time of worker node created we use daemonset
+
+: it is used to run a copy of a pod to each worker node
+
+kubectl create daemonset name --image=name
+
+
+daemon.yml
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+ name: myDaemonSet
+spec:
+ selector:
+  matchlabel:
+   apps: name
+ template:
+  metadata:
+   labels:
+    apps: name
+  spec:
+   containers:
+    - name: name
+      image: image-name
+   ports:
+    - containerPort: 80
+
+
+daemon set with node affinity:
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+ name: myDaemonSet
+spec:
+ selector:
+  matchlabel:
+   apps: name
+ template:
+  metadata:
+   labels:
+    apps: name
+  spec:
+   affinity:
+    nodeAffinity:
+     requiredDuringSchedulingIgnoredduringExecution:
+      nodeSelectorTerms:
+      - matchNodeExpressions:
+         - key: env
+           operator: In
+           values:
+            - test
+    containers:
+    - name: name
+      image: image-name
+      ports:
+       - containerPort: 80
+
+kubectl apply -f filename.yml
+
+
+statefulsets:
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+ name: mystatefulSet
+spec:
+ replicas: 4
+ selector:
+  matchlabel:
+   apps: moniter
+ template:
+  metadata:
+   labels:
+    apps: moniter
+  spec:
+   containers:
+    - name: name
+      image: image-name
+   ports:
+    - containerPort: 80
+
+
+
+namespace:
+
+
+kubectl create ns name
+
+kubectl get ns
+
+kubectl get po -n ns-name
+
+
+to go to other namespace:
+
+
+kubectl config set-context --current --namespace=name
+
+
+--- 
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devops
+
+
+
+to create daemonset in namespace:
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+ name: mystatefulSet
+ namespace: devops
+spec:
+ replicas: 4
+ selector:
+  matchlabel:
+   apps: moniter
+ template:
+  metadata:
+   labels:
+    apps: moniter
+  spec:
+   containers:
+    - name: name
+      image: image-name
+   ports:
+    - containerPort: 80
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+resource quota:
+
+
+
+if we allocate resources to particular pods or namespace it can't be shared with other pods or namespace
+
+
+restrictions:
+
+limit : represents the maximum amount of cpu or memory the pod can use
+
+request :  represents the minimum amount of cpu or memory the pod can guaranteed to have
+
+if limit exceeds :  oomkill (out of memory kill)
+
+
+conditions or principles for requests 
+
+if requests and limits are given in manifest files , it will work accordingly
+
+if request are give and limit not specified then default requests will be used
+
+if limit is specified request will be equal to limits
+
+
+
+creating namespace:
+
+kubectl create ns ns-name 
+
+write a manifest file for resourcequota
+
+
+quota.yml
+
+---
+apiVersion: v1
+kind: pod
+metadata:
+ name: pod-name
+ namespace: ns-name 
+spec:
+ containers:
+  - name: cont-name
+    image: imgae-name
+  - ports:
+     - containerPort: 80 ( assuming it as a web appl image)
+    resources:
+     requests:
+      memory: "64Mi"
+      cpu: "250m"
+     limts:
+      memory: "128Mi"
+      cpu: "500m"
+
+
+
+now apply :
+
+----------     kubectl create -f  quota.yml
+
+now check the pod in the mentioned name space
+
+-----------    kubectl get po -n ns-name
+
+describe the pod for further info:
+
+------------   kubectl describe pod pod-name -n ns-name
+
+incase if we want change the ns:
+
+------------   kubectl config set-context --current --namespace=name
+
+
+
+2nd case if request specified and limit not specified:
+
+ manifest file:
+
+---
+apiVersion: v1
+kind: pod
+metadata:
+ name: pod-name
+ namespace: ns-name 
+spec:
+ containers:
+  - name: cont-name
+    image: imgae-name
+  - ports:
+     - containerPort: 80 ( assuming it as a web appl image)
+    resources:
+     requests:
+      memory: "64Mi"
+      cpu: "250m"
+
+----------     kubectl create -f  quota.yml
+
+now check the pod in the mentioned name space
+
+-----------    kubectl get po -n ns-name
+
+
+3rd case only  limits specified:
+
+---
+apiVersion: v1
+kind: pod
+metadata:
+ name: pod-name
+ namespace: ns-name 
+spec:
+ containers:
+  - name: cont-name
+    image: imgae-name
+    ports:
+     - containerPort: 80 ( assuming it as a web appl image)
+    resources:
+     limts:
+      memory: "128Mi"
+      cpu: "500m"
+
+hands on :
+
+in spec if we provide hard -- limit won't exceed but pod will be deleted if we provide soft limit will be exceeded but it notifies admin
+
+kubectl create ns evaluation
+
+manifest name: quota.yml
+--- 
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+ name: myQuota
+ namespace: evaluation
+spec:
+ hard:
+   limits.cpu: "500m"
+   requests.cpu: "150m"
+   limits.memory: "64Mi"
+   requests.memory:"128Mi"
+
+kubectl create -f quota.yml
+
+or we can apply as well
+
+check the created quota
+
+kubectl get quota -n evaluation
+
+
+now specify the pod requests and limits:
+
+create a pod.yml or deployment.yml
+
+
+deployment.yml:
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: my-evaluation
+ namespace: evaluation
+spec:
+ replicas: 2
+ selector:
+  matchlabels:
+   env: test
+ template:
+  metadata:
+   labels: 
+    env: test
+   spec:
+     containers:
+      - name: evaluate
+        image: image-name
+        ports:
+         - conatinerPort: 80
+        resources:
+         requests:
+          memory: 10Mi
+          cpu: 50m    
+         limits:    
+          memory: 20Mi
+          cpu: 100m 
+
+
+to see all the data :
+
+kubectl get quota --all-namspaces
+
+
+
+
+RBAC:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

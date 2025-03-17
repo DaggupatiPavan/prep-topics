@@ -1,0 +1,182 @@
+docker run -itd --name cont --mount src=swiggy,destination=path image
+
+docker run -itd --name cont -v $(pwd):path:ro image
+
+docker run -itd --name cont privilaged=true -volume-from=volume-name image
+
+
+
+
+docker run --name cont -network network-name -d image
+
+docker network connect ntw-name cont-name
+
+
+
+docker build -t image-name .
+
+docker tag image satya/repo:tag
+
+docker push satya/repo:tag         
+
+
+
+docker-compose --scale service=no.of repli -d
+
+docker service create --name service-name --replicas count -p hp:cp image
+
+docker service scale serv.name=count 
+
+
+
+docker service update --image image-name service-name
+
+docker service rollback  service-name
+
+
+
+docker stack deploy stack-name --compose-file=docker-compose.yml
+
+to generate image from container:
+
+docker commit container-id image-name
+
+
+
+
+
+kubectl run pod-name --image=image-name
+
+
+
+declarative : 
+
+---
+apiVersion: "v1"
+kind: Pod
+metadata:
+   name: mypod
+   labels:
+      env: dev
+      app: swiggy
+      client: tcs
+spec:
+   containers:
+     -name: con-1
+      image: imagename
+      ports:
+        -containerPort: 80
+
+kubectl create -f file.yml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 3  # Creates 3 pods
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-container
+        image: nginx
+        ports:
+        - containerPort: 80
+
+kubectl apply -f deployment.yml
+
+kubectl get deployments
+
+
+create namespace :
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: isolated-ns
+
+deployment yml:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+ ---------------------------------- namespace: isolated-ns  # Deploying inside the namespace
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-container
+        image: nginx
+        ports:
+        - containerPort: 80
+
+service yml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  namespace: isolated-ns
+spec:
+  selector:
+    app: my-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP 
+
+apply
+
+ingress yml:
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+  namespace: isolated-ns
+  annotations:
+nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+- host: myapp.example.com  # Replace with your domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-service
+            port:
+              number: 80
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

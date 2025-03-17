@@ -1,0 +1,158 @@
+RBAC:
+
+there are 2 types of accounts
+
+1. user account
+2. service account ( it is used to communicate between the objects in Kubernetes) used to interact with k8s api
+
+USER ACCOUNT USED to log on to k8s cluster and manipulate resources 
+
+
+
+role
+role binding:  attaching a role to a user ( it is for specific ns)
+
+cluster role:
+
+cluster role binding ( to get all permissions of cluster )
+
+
+contect ( user and cert ) for user privilages
+
+
+generating certificate:
+
+openssl x509 -req -in satya.csr -CA ~/.minikube/ca.crt -CAkey ~/.minikube/ca.key \
+    -CAcreateserial -out satya.crt -days 500 
+
+there are 4 components in RBAC
+
+1.ROLES
+2.CLUSTER ROLES
+3.ROLE BINDINGS 
+4.CLUSTER ROLE BINDINGS
+
+roles defines  SET OF PERMISSIONS for a user of grp, it defines the actions allowed to perform by a user
+
+cluster roles are spl. roles this will provide all access to the entire cluster and these are not namespace specified
+
+role bindings: this will connect users to roles
+
+cluster binding : this will connect cluster roles to users across the entire cluster
+
+create a ns:
+
+kubectl create ns satya
+
+now write yml file for roles
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+ name: my-role
+ namespace: satya
+rules:
+-apiGroups: [""]
+ resources: ["pods"]
+ verbs: ["get","list","watch"]
+
+imperative way: kubectl create role admin --verb=get,list,watch --resorce=pods,services,deployments -n satya
+
+role binding:
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+ name: my-binding
+ namespace: satya
+subjects:
+ - kind: user
+   name: satya
+   apiGroup: rbac.authorization.k8s.io
+roleRef:
+ kind: Role
+ name: my-role
+ apiGroup: rbac.authorization.k8s.io
+
+
+
+imperative way:
+
+kubectl create rolebinding role-binding-name --role=role-name --user=user-name
+
+
+kubectl auth can-i delete pod --as user
+
+kubectl config view --minify : to see the compressed view
+
+
+
+
+cluster role:
+
+
+
+
+kubectl config use-context my-context
+
+kubectl config set-context --current --namespace=satya
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+ name: my-role
+rules:
+-apiGroups: [""]
+ resources: ["pods","deployemnts"]
+ verbs: ["get","list","watch"]
+-apiGroups: [""]
+ resources: ["services"]
+ verbs: ["get","list","watch","delete","create"]
+
+
+cluster binding:
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+ name: my-cluster-binding
+subjects:
+ - kind: user
+   name: satya
+   apiGroup: rbac.authorization.k8s.io
+roleRef:
+ kind: ClusterRole
+ name: my-cluster-role
+ apiGroup: rbac.authorization.k8s.io
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,173 @@
+troubleshooting in Kubernetes:
+
+
+crashloopbackoff :
+
+
+indicates that will automatically start crash then restart
+
+check pod logs:  kubectl logs pod-name
+
+describe pod: kubectl describe po po-name  --- check events
+
+ensure pod configurations and env variables crctly defined 
+
+verify entry point in docker file
+
+ensure that there are no resource limits preventing the pod from running
+
+
+image pull backoff:
+
+creds - issues 
+check image - name - yaml
+describe pod
+check secrets - kubect get secret
+
+pendingpods:
+
+this error will occurs when pod is in pending state when it is unable to schedule on to a node
+
+10 pods ( worker: t2. micro)
+11th pod pending
+
+if any pod deleted from 10 pods then 11th will be created
+
+nodenotready: 
+
+1. describe the node 
+2. review the node logs kubectl logs node-id
+
+unauthorized error:
+
+indicates failure in authentication
+
+1. check creds
+2.describe resource kubectl describe resource resource-name
+3. check rbac policies
+4.check service account tokens are valid or not
+5. check the kubeconfig file configured correctly or not
+
+failedscheduling:
+
+this error occurs when the scheduler can't find any suitable nodes for a pod
+
+1. check pod logs 
+2. check resources of a pod ( cpu, pod)\
+
+OOMkilled:
+
+check the resources of pod
+describe pod
+increase pod memory limit
+optimizing the app to use less memory
+
+error creating loadbalancer :
+
+it occurs when k8s can't communicate with cloud provider
+
+describe services : kubectl describe svc svc-name
+
+IAM permission ( verify in aws cloud)
+
+check the cloud provider integration configuration is successfully configured or not
+
+verify service file annotations ( yaml)
+
+containerCreationError:
+
+WHEN WE DIDN'T PASS CRCT container configuration on yml 
+
+1. describe pod
+2. check cont config in yml
+3. image pull issue check
+4. verify node has sufficient resources or not
+5. ensure there are no networking issues
+
+
+
+
+
+questions:
+
+having 2 worker nodes 
+
+
+
+NodeResourceFit - plugin:
+
+1. mostAllocated
+2. leastAllocated
+3. requested to capacity ratio
+
+pod affinity , node affinity , pod anti affinity:
+
+
+taint , tolerance:
+
+
+there is application and that container went to oom state 
+
+depends on situation 
+
+cont restart - default if worker node has enough resource
+
+pod restart - if worker node have heavy load
+
+
+can we dynamically over ride config value varible: yes
+
+1. env: 
+     port: 8080
+
+2. env_from
+    config_map
+
+
+how can we get logs from each worker set:
+
+yes by using daemonset:
+
+fluentd , filebeta
+
+how to handle heavy traffic:
+
+enable auto scaling -- hpa
+
+if the container is in exited every time -- kubectl debug container 
+
+
+
+service mesh - 
+
+tool to manage all the networking
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
