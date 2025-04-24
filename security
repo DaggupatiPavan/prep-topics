@@ -1,0 +1,28 @@
+Fortify,
+Black Duck,
+ZAP,
+42 Crunch
+
+Shift left: moving security testing further left as possible
+
+SAST: Static app security testing(horusec, sonarQube,)(horusec start -p /src)
+SAST(sonarqube)->finding common vulnerabilities->SQL injection & Buffer Overflows (it is a kind of White-Box testing)
+
+DAST: Dynamic app security testing(OWASP ZAP)
+DAST: it can test a running app through its UI or API forcommon vulnerabilities such as SQL injection & Buffer Overflows)  (it is a kind of Black-Box testing)
+
+SCA: software composition analysis(software deployed with help of third party dependencies instead of developing dependencies our selfes (why reinvent wheel)) (it's a kind of SAST)(snyk)
+
+CNAPP: (Cloud Native App protection platform ) is an integrated sol designed to protect CNA across their lifecycle(Wiz, Orca Security)(Iac, cloud)
+
+Penetration testing: it is a authorized test on app/env performed to evaluate its security.(can be white/black/grey box (mix of white & black box)) (need to do manual, automated not possible easily)
+
+Vulnerability assessment: identify the vulnerabilities and report them. (automation possible, integrate with CI/CD)
+
+Key Security Principles: Least Privilege, Authorization(providing permission to the services) and Authentication(user login for appl). 
+
+CIA Triad: confidentiality, Integrity & availability (simple, high level (information security))
+confidentiality: ensuring the data is kept in safe, secure & unable to unauthorized access.
+integrity: Ensuring data is accurate and has not been tampered with trustworthy.
+Availability: Ensuring the data and systems are available. 
+
