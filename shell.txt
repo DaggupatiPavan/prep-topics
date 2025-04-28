@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e # when cmd executed with error code it will stop executing remaining lines"
+set -x
+# Some non-sensitive commands
+set +x
+password="my_secret_password"
+set -x
+# More non-sensitive commands
